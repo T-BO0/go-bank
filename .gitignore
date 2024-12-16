@@ -1,0 +1,63 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Logs
+*.log
+
+# Build directories
+_build/
+build/
+
+# Configuration files
+*.env
+*.local
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# Dependency directories
+vendor/
+Godeps/
+
+# IDE and editor files
+.idea/
+*.iml
+.vscode/
+*.code-workspace
+.DS_Store
+
+# Go Modules
+/go.sum
+/go.work
+
+# Coverage files
+*.cover
+*.coverage
+
+# Test binary
+*.test
+
+# Cgo generated files
+*.cgo2.go
+
+# Go race detector
+*.race
+
+# Output of the go build cache
+*.cache
+
+# Output of gofmt -w
+*.orig
+
+# Others
+tags
