@@ -20,8 +20,8 @@ RETURNING id, account_id, amount, created_at
 `
 
 type CreateEntryParams struct {
-	AccountID int64
-	Amount    float64
+	AccountID int64   `json:"account_id"`
+	Amount    float64 `json:"amount"`
 }
 
 func (q *Queries) CreateEntry(ctx context.Context, arg CreateEntryParams) (Entry, error) {
@@ -94,8 +94,8 @@ OFFSET $2
 `
 
 type ListEntryParams struct {
-	Limit  int32
-	Offset int32
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
 }
 
 func (q *Queries) ListEntry(ctx context.Context, arg ListEntryParams) ([]Entry, error) {
@@ -135,9 +135,9 @@ OFFSET $3
 `
 
 type ListEntryByAccountIdParams struct {
-	AccountID int64
-	Limit     int32
-	Offset    int32
+	AccountID int64 `json:"account_id"`
+	Limit     int32 `json:"limit"`
+	Offset    int32 `json:"offset"`
 }
 
 func (q *Queries) ListEntryByAccountId(ctx context.Context, arg ListEntryByAccountIdParams) ([]Entry, error) {
@@ -176,8 +176,8 @@ RETURNING id, account_id, amount, created_at
 `
 
 type UpdateEntryParams struct {
-	ID     int64
-	Amount float64
+	ID     int64   `json:"id"`
+	Amount float64 `json:"amount"`
 }
 
 func (q *Queries) UpdateEntry(ctx context.Context, arg UpdateEntryParams) (Entry, error) {
