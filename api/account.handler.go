@@ -66,3 +66,37 @@ func (server *Server) getAccount(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, account)
 }
+
+type getListOfAccountRequest struct {
+	PageSize int32 `query:"size" validate:"required,gte=5,lte=30"`
+	Offset   int32 `query:"offset" validate:"required,gte=0"`
+}
+
+// NOTE - getListOfAccount will get a list of accounts with Offset And Size
+func (server *Server) getListOfAccount(c echo.Context) error {
+	getlisofAccReq := getListOfAccountRequest{}
+
+	err := (&echo.DefaultBinder{}).BindQueryParams(c, &getlisofAccReq)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid params")
+	}
+
+	if err = c.Validate(&getlisofAccReq); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	args := db.ListAccountParams{
+		Limit:  getlisofAccReq.PageSize,
+		Offset: (getlisofAccReq.Offset - 1) * getlisofAccReq.PageSize,
+	}
+	// get account or error
+	accounts, err := server.store.ListAccount(c.Request().Context(), args)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return echo.NewHTTPError(http.StatusNotFound, "record not found with given id") // record not found
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error()) // something went wrong
+	}
+
+	return c.JSON(http.StatusOK, accounts)
+}
