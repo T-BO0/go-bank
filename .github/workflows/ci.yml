@@ -50,4 +50,8 @@ jobs:
         run: make migrate_up
 
       - name: Test
+        env:
+          DB_DRIVER: ${{ secrets.DB_DRIVER }}
+          DB_SOURCE: ${{ secrets.DB_SOURCE }}
+          SERVER_ADDRESS: ${{ secrets.SERVER_ADDRESS }}
         run: make test
