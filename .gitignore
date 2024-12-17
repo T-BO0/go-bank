@@ -15,7 +15,7 @@ _build/
 build/
 
 # Configuration files
-*.env
+# *.env
 *.local
 
 # Temporary files
