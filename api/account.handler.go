@@ -47,12 +47,8 @@ func (server *Server) createAccount(c echo.Context) error {
 func (server *Server) getAccount(c echo.Context) error {
 	idstr := c.Param("id")
 
-	if idstr == "" {
-		return echo.NewHTTPError(http.StatusNotFound, "id is required") // id was not provided
-	}
-
 	id, err := strconv.ParseInt(idstr, 0, 0)
-	if err != nil {
+	if err != nil || id <= 0 {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid id") // id was not int
 	}
 	// get account or error

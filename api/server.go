@@ -8,7 +8,7 @@ import (
 
 // Server serves HTTP requests for our banking service
 type Server struct {
-	store  *db.Store
+	store  db.Store
 	router *echo.Echo
 }
 
@@ -18,7 +18,7 @@ func (server *Server) Start(address string) error {
 }
 
 // NewServer creates a new HTTP server and setup routing
-func NewServer(store *db.Store) *Server {
+func NewServer(store db.Store) *Server {
 	server := &Server{store: store}
 	router := echo.New()
 	router.Validator = &CustomValidator{validator: validator.New()}
