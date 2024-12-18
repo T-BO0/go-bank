@@ -30,8 +30,8 @@ func (server *Server) createAccount(c echo.Context) error {
 
 	args := db.CreateAccountParams{
 		Owner:    createAccReq.Owner,
-		Currency: createAccReq.Currency,
 		Balance:  0,
+		Currency: createAccReq.Currency,
 	}
 
 	// create acc and get error or return error
