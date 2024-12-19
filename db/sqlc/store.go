@@ -67,7 +67,7 @@ type TransferTxResult struct {
 	ToEntry     Entry    `json:"toEntry"`
 }
 
-// TransferTx performs a money transfer from one account to the other
+// ANCHOR - TransferTx performs a money transfer from one account to the other
 // It creates a transfer record, add account entries, and update accounts' balance within a single database transaction
 func (store *SQLStore) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
 	var result TransferTxResult

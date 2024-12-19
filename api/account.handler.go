@@ -14,7 +14,7 @@ type createAccountRequest struct {
 	Currency string `json:"currency" validate:"required,oneof=USD EUR GEL"`
 }
 
-// NOTE - createAccount is a handler that creates new Account
+// ANCHOR - createAccount is a handler that creates new Account route:POST: /accounts
 func (server *Server) createAccount(c echo.Context) error {
 	createAccReq := new(createAccountRequest)
 
@@ -43,7 +43,7 @@ func (server *Server) createAccount(c echo.Context) error {
 	return c.JSON(http.StatusOK, account)
 }
 
-// NOTE - getAccount will get account with specific AccountID
+// ANCHOR - getAccount will get account with specific AccountID route:GET: /accounts/:id
 func (server *Server) getAccount(c echo.Context) error {
 	idstr := c.Param("id")
 
@@ -68,7 +68,7 @@ type getListOfAccountRequest struct {
 	PageNumber int32 `query:"page" validate:"required,gte=0"`
 }
 
-// NOTE - getListOfAccount will get a list of accounts with Offset And Size
+// ANCHOR - getListOfAccount will get a list of accounts with Offset And Size route:GET: /accounts
 func (server *Server) getListOfAccount(c echo.Context) error {
 	getlisofAccReq := getListOfAccountRequest{}
 
