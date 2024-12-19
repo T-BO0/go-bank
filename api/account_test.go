@@ -211,6 +211,121 @@ func TestCreateAccount(t *testing.T) {
 	//!SECTION
 }
 
+func TestGetListOfAccount(t *testing.T) {
+	var accounts []db.Account
+	for i := 0; i < 10; i++ {
+		accounts = append(accounts, getRandomAccount())
+	}
+
+	expectedAccounts := append(accounts, accounts[len(accounts)/2-1:]...)
+
+	//SECTION - TestCases
+	testCases := []struct {
+		name          string
+		url           string
+		appType       string
+		buildStubs    func(store *mockdb.MockStore)
+		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name:    "OK",
+			url:     fmt.Sprintf("/accounts?size=%d&page=%d", 5, 2),
+			appType: echo.MIMEApplicationJSON,
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					ListAccount(gomock.Any(), gomock.Eq(db.ListAccountParams{Limit: 5, Offset: (2 - 1) * 5})).
+					Times(1).
+					Return(expectedAccounts, nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusOK, recorder.Code)
+				checkArrayOfAccount(t, recorder.Body, expectedAccounts)
+			},
+		},
+		{
+			name:    "Validation",
+			url:     fmt.Sprintf("/accounts?size=%d&page=%d", 5, 0),
+			appType: echo.MIMEApplicationJSON,
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					ListAccount(gomock.Any(), gomock.Any()).
+					Times(0).
+					Return([]db.Account{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name:    "BindError",
+			url:     fmt.Sprintf("/accounts?size=%d&page=%s", 5, "a"),
+			appType: echo.MIMEApplicationJSON,
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					ListAccount(gomock.Any(), gomock.Any()).
+					Times(0).
+					Return([]db.Account{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name:    "RecordNotFound",
+			url:     fmt.Sprintf("/accounts?size=%d&page=%d", 5, 100),
+			appType: echo.MIMEApplicationJSON,
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					ListAccount(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(nil, sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+			},
+		},
+		{
+			name:    "InternalError",
+			url:     fmt.Sprintf("/accounts?size=%d&page=%d", 5, 2),
+			appType: echo.MIMEApplicationJSON,
+			buildStubs: func(store *mockdb.MockStore) {
+				store.EXPECT().
+					ListAccount(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(nil, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+	}
+	//!SECTION
+
+	//SECTION - Test Run
+	for i := range testCases {
+		tc := testCases[i]
+
+		t.Run(tc.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			store := mockdb.NewMockStore(ctrl)
+			tc.buildStubs(store)
+
+			server := NewServer(store)
+			recorder := httptest.NewRecorder()
+
+			request, err := http.NewRequest(http.MethodGet, tc.url, nil)
+			request.Header.Set(echo.HeaderContentType, tc.appType)
+			require.NoError(t, err)
+
+			server.router.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+		})
+	}
+	//!SECTION
+}
+
 func getRandomAccount() db.Account {
 	return db.Account{
 		ID:       int64(util.RandomFloat(1, 1000)),
@@ -236,4 +351,17 @@ func checkBody(t *testing.T, body *bytes.Buffer, account db.Account) {
 	err = json.Unmarshal(data, &gotAccount)
 	require.NoError(t, err)
 	require.Equal(t, gotAccount, account)
+}
+
+func checkArrayOfAccount(t *testing.T, body *bytes.Buffer, accounts []db.Account) {
+	data, err := io.ReadAll(body)
+	require.NoError(t, err)
+	var listOfAccounts []db.Account
+
+	err = json.Unmarshal(data, &listOfAccounts)
+	require.NoError(t, err)
+
+	for i, v := range listOfAccounts {
+		require.Equal(t, v, accounts[i])
+	}
 }
