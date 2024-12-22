@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"math/rand/v2"
 	"strings"
 )
@@ -42,4 +43,14 @@ func RandomCurrency() string {
 	n := len(currencies)
 
 	return currencies[rand.IntN(n)]
+}
+
+func RandomEmail() string {
+	domains := []string{"gmail", "yehu", "mail"}
+
+	username := RandomString(7)
+	domain := domains[rand.IntN(len(domains))]
+	email := fmt.Sprintf("%s@%s.com", username, domain)
+
+	return email
 }

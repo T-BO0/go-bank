@@ -2,11 +2,13 @@ package api
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"strconv"
 
 	db "github.com/T-BO0/bank/db/sqlc"
 	"github.com/labstack/echo/v4"
+	"github.com/lib/pq"
 )
 
 type createAccountRequest struct {
@@ -37,6 +39,16 @@ func (server *Server) createAccount(c echo.Context) error {
 	// create acc and get error or return error
 	account, err := server.store.CreateAccount(c.Request().Context(), args)
 	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			switch pqErr.Code.Name() {
+			case "foreign_key_violation":
+				return echo.NewHTTPError(http.StatusForbidden,
+					fmt.Sprintf("there is no user with user name %s", args.Owner))
+			case "unique_violation":
+				return echo.NewHTTPError(http.StatusForbidden,
+					fmt.Sprintf("the user %s already have acc with Currency with %s", args.Owner, args.Currency))
+			}
+		}
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 

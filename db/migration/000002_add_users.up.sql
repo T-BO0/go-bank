@@ -4,7 +4,7 @@ CREATE TABLE "users" (
   "full_name" varchar NOT NULL,
   "email" varchar UNIQUE NOT NULL,
   "password_changed_at" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00 +0000',
-  "created_at" timestamp NOT NULL DEFAULT 'now()'
+  "created_at" timestamp NOT NULL DEFAULT (now() AT TIME ZONE 'UTC' + INTERVAL '4 hours')
 );
 
 ALTER TABLE "accounts" ADD FOREIGN KEY ("owner") REFERENCES "users" ("username");
