@@ -33,4 +33,4 @@ server:
 mock:
 	mockgen -destination=db/mock/store.go -package=mockdb github.com/T-BO0/bank/db/sqlc Store  
 
-.PHONY: db_up db_down migrate_up migrate_down sqlc test server mock migrate_up_next migrate_down_last
+.PHONY: db_up db_down migrate_up migrate_down sqlc test server migrate_up_next migrate_down_last mock
